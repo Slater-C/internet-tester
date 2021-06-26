@@ -83,12 +83,12 @@ def text_draw(font, display_width, display_height, lost_pings):
 
     print("text width is: " + str(text_width) + "  |   offset x is:" + str(offset_x))
 
-    for y in range(0, 5):
+    for y in range(0, 6):
         for x in range(display_width):
             #hue = 160 #(time.time() / 10.0) + (x / float(display_width * 2))
             #r, g, b = [int(c * 255) for c in hsv_to_rgb(hue, 1.0, 1.0)]
-            if image.getpixel((x + offset_x, y)) == 255:
-                unicornhatmini.set_pixel(x, y, 255, 0, 0)
+            if image.getpixel((x + offset_x, y-1)) == 255:
+                unicornhatmini.set_pixel(x, y, 0, 0, 255)
             else:
                 unicornhatmini.set_pixel(x, y, 0, 0, 0)
 
@@ -111,7 +111,7 @@ def main():
     print("{}x{}".format(display_width, display_height))
 
     # Do not look at unicornhatmini with remaining eye
-    unicornhatmini.set_brightness(0.1)
+    unicornhatmini.set_brightness(0.5)
 
     # Load a nice 5x7 pixel font
     # Granted it's actually 5x8 for some reason :| but that doesn't matter
@@ -140,7 +140,7 @@ def main():
                 unicornhatmini.set_pixel(i+1, 6, 0, 0, 0) #x, y, r, g, b
             
             for x in range (0, 15):
-                unicornhatmini.set_pixel(x+1, 6, 0, 0, 255) #x, y, r, g, b
+                unicornhatmini.set_pixel(x+1, 6, 0, 0, 200) #x, y, r, g, b
                 unicornhatmini.show()
                 
                 while True:
@@ -154,9 +154,9 @@ def main():
                 fail = int(response_list.packet_loss)
                 fails += fail
                 if(fail):
-                    unicornhatmini.set_pixel(x+1, 6, 255, 0, 0) #x, y, r, g, b
+                    unicornhatmini.set_pixel(x+1, 6, 200, 0, 0) #x, y, r, g, b
                 if(not fail):
-                    unicornhatmini.set_pixel(x+1, 6, 0, 255, 0) #x, y, r, g, b
+                    unicornhatmini.set_pixel(x+1, 6, 0, 200, 0) #x, y, r, g, b
                 unicornhatmini.show()
 
                 cycle.ping_total += 1
