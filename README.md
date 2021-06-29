@@ -1,7 +1,9 @@
 # Visual Internet Tester
 
 This repository contains a python script that pings Google repeatedly, to monitor internet connection reliability. The results are saved to a CSV file. They are also visualized on a Pimoroni Unicorn Hat Mini. A 15 pixel wide bar shows the status of each ping in real time, and two layers of different brightness are used to show older pings. Above this, a number displays the failed pings in the last 24 hours.
+
 STL files are provided to 3D print a simple case for the device. M2 nuts and screws will be required, of length 30mm? and 5mm?. The case is intended to have a paper filter cut out and inserted as a diffuser.
+
 
 Hardware:
   - Raspberry Pi Zero W
