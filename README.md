@@ -14,6 +14,7 @@ Hardware:
 Future plans:
 
   - Color of the 24 hour failed pings will be based on packet loss over the last hour (1% is red?)
+  - Ping bar pixels turn yellow on abnormally long response time (> 1 sec?)
   - Case will be redesigned on a slight angle for better viewing, with a shallower bezel
   - Case may include a tinted acrylic window instead of paper (or both?)
   - 24 hour display only goes to 999 -- need good solution for overflowing this
