@@ -26,3 +26,5 @@ Future plans:
   - Better CSV formatting, and separation of CSV into files based on week
   - Maybe a local web page capable of graphing the last week of results, and allowing a download of the CSV for longer term logs
   - A better way to set the WIFI password. Currently the only was is to SSH into the device over USB, or provide the password in a text file on the SD card
+
+  - Setup instructions
