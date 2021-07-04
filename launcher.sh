@@ -4,5 +4,7 @@
 
 cd /
 cd home/pi/internet-test
+sudo systemctl daemon-reload
+sudo systemctl restart systemd-timesyncd
 sudo python3 internet_test.py &
 cd /

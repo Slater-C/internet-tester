@@ -9,7 +9,7 @@ import sys
 unicornhatmini = UnicornHATMini()
 seconds = time.time()
 
-class pingStats_cycle:
+class pingStatsCycle:
     def __init__(self):
         self.ping_total   = 0
         self.ping_success = 0
@@ -34,9 +34,9 @@ class pingStats_cycle:
 
 
 class pingHistory:
-    def __init__(self):
+    def __init__(self, size):
         self.index = 0
-        self.interval = 1441
+        self.interval = size
         self.day_failures = [0] * self.interval
     
     def queue_fails(self, failures):
@@ -51,21 +51,59 @@ class pingHistory:
             failed_pings += self.day_failures[x]
         return failed_pings
 
-class pingBar:
+class reliabilityPercent:
     def __init__(self, size):
+        self.index = 0
+        self.interval = size
+        self.interval_total = [0] * self.interval
+        self.interval_failure = [0] * self.interval
+    
+    def queue_results(self, total, failure):
+        self.interval_total[self.index] = total
+        self.interval_failure[self.index] = failure
+        self.index += 1
+        if(self.index >= self.interval):
+            self.index = 0
+
+    def percent_failed(self):
+        failed_pings = 0
+        for x in range (0, self.interval-1):
+            failed_pings += self.interval_failure[x]
+
+        total_pings = 0
+        for x in range (0, self.interval-1):
+            total_pings += self.interval_failure[x]
+        
+        if(total_pings == 0):
+            total_pings = 1
+
+        percent = (failed_pings / total_pings) * 100
+
+        print("\nTotal pings over failed pings is ", failed_pings, "/", total_pings, " = ", percent)
+
+        return percent
+
+class pingBar:
+    def __init__(self, size, slow_ping):
         self.size = size
         self.ledBar = ['pending'] * size
+        self.slow = slow_ping
     
     def init_pingBar(self):
         for x in range(0, self.size):
             unicornhatmini.set_pixel(x + 1, 6, 0, 0, 20) #x, y, r, g, b
         unicornhatmini.show()
 
-    def store_ping(self, index, success):
+    def store_ping(self, index, success, rtt):
         if(success):
-            self.ledBar[index] = 'success'
-            unicornhatmini.set_pixel(index + 1, 6, 0, 200, 0) #x, y, r, g, b
-            unicornhatmini.show()
+            if(rtt < self.slow):
+                self.ledBar[index] = 'success'
+                unicornhatmini.set_pixel(index + 1, 6, 0, 200, 0) #x, y, r, g, b
+                unicornhatmini.show()
+            else:
+                self.ledBar[index] = 'slow'
+                unicornhatmini.set_pixel(index + 1, 6, 180, 110, 0) #x, y, r, g, b
+                unicornhatmini.show()
         else:
             self.ledBar[index] = 'failure'
             unicornhatmini.set_pixel(index + 1, 6, 200, 0, 0) #x, y, r, g, b
@@ -81,11 +119,14 @@ class pingBar:
                 unicornhatmini.set_pixel(x + 1, 6, 0, 15, 0) #x, y, r, g, b
             elif (self.ledBar[x] == 'failure'):
                 unicornhatmini.set_pixel(x + 1, 6, 15, 0, 0) #x, y, r, g, b
+            elif(self.ledBar[x] == 'slow'):
+                unicornhatmini.set_pixel(x + 1, 6, 12, 6, 0) #x, y, r, g, b
             else:
                 unicornhatmini.set_pixel(x + 1, 6, 0, 0, 15) #x, y, r, g, b
         unicornhatmini.show()
 
-            
+def map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min      
 
 
 def append_file(ping_total, ping_successes, ping_failures, avg_rtt):
@@ -99,9 +140,20 @@ def append_file(ping_total, ping_successes, ping_failures, avg_rtt):
         writer.writerow(fields)
     csvfile.close()
 
-def text_draw(font, display_width, display_height, lost_pings):
+def text_draw(font, display_width, display_height, lost_pings, reliability):
     
-    text = str(lost_pings)
+    if(lost_pings > 999):
+        text = "MAX"
+    else:
+        text = str(lost_pings)
+    
+    percent = reliability.percent_failed()
+    if(percent <= 1):
+        hue = map(percent, 0, 1, 100, 0)
+    else:
+        hue = 0
+    
+    r, g, b = [int(c * 255) for c in hsv_to_rgb(hue, 1.0, 1.0)]
 
     # Measure the size of our text, we only really care about the width for the moment
     # but we could do line-by-line scroll if we used the height
@@ -110,7 +162,6 @@ def text_draw(font, display_width, display_height, lost_pings):
     # Create a new PIL image big enough to fit the text
     image = Image.new('P', (text_width + display_width + display_width, display_height), 0)
     draw = ImageDraw.Draw(image)
-
 
     # Draw the text into the image
     draw.text((display_width, -1), text, font=font, fill=255)
@@ -124,7 +175,7 @@ def text_draw(font, display_width, display_height, lost_pings):
             #hue = 160 #(time.time() / 10.0) + (x / float(display_width * 2))
             #r, g, b = [int(c * 255) for c in hsv_to_rgb(hue, 1.0, 1.0)]
             if image.getpixel((x + offset_x, y)) == 255:
-                unicornhatmini.set_pixel(x, y, 255, 0, 20)
+                unicornhatmini.set_pixel(x, y, r, g, b)
             else:
                 unicornhatmini.set_pixel(x, y, 0, 0, 0)
 
@@ -155,10 +206,11 @@ def main():
 
 
     cycle_delay = 0
-    save_delay = time.time() + 720
-    cycle = pingStats_cycle()
-    day = pingHistory()
-    bar = pingBar(size = 15)
+    save_delay = time.time()
+    cycle = pingStatsCycle()
+    day = pingHistory(size = 1441)
+    bar = pingBar(size = 15, slow_ping = 1000)
+    reliability = reliabilityPercent(size = 61)
 
     bar.init_pingBar()
     
@@ -191,7 +243,7 @@ def main():
                 fail = int(response_list.packet_loss)
                 fails += fail
                 
-                bar.store_ping(index = x, success = not fail)
+                bar.store_ping(index = x, success = not fail, rtt = response_list.rtt_avg_ms)
 
                 cycle.ping_total += 1
                 cycle.ping_success += int(1 - response_list.packet_loss)
@@ -199,24 +251,21 @@ def main():
                 cycle.append_rtt(response_list.rtt_avg_ms)
                 
                 if(fail):
-                    text_draw(font, display_width, display_height, day.total_fails() + fails)
+                    text_draw(font, display_width, display_height, day.total_fails() + fails, reliability)
 
                 if (x != 14):
                     while ((time.time() * 1000) < ping_start + 4000):
                         pass
-
-
-                # time.sleep(1)   # PING FINISH
+                # PING FINISH
 
             day.queue_fails(fails)
+            reliability.queue_results(total = 15, failure = fails)
 
             cycle.print_pingstats()
             print("\nFAILS IN 24 HOURS = " + str(day.total_fails()))
             
-            predraw = time.time() * 1000
-            text_draw(font, display_width, display_height, day.total_fails())
-            postdraw = time.time() * 1000
-            print("time to draw is", postdraw - predraw)
+            text_draw(font, display_width, display_height, day.total_fails(), reliability)
+
             
 
         if((save_delay + 600) < seconds):
