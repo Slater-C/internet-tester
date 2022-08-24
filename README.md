@@ -27,8 +27,7 @@ Future plans:
 
 
 Setup instructions (maybe incomplete?):
- - Create directory in home called internet-test and copy internet-test.py, launcher.sh, and
- 5x7.ttf
+ - Create directory in home called internet-test and copy internet-test.py and 5x7.ttf
 
 Now install these dependencies:
 ```
@@ -44,16 +43,16 @@ Enable SPI:
 ```
 sudo raspi-config nonint do_spi 0
 ```
-Use Crontab to run the script at boot automatically:
+Use rc.local to make the script load on boot:
 ```
-sudo crontab -e
+sudo nano /etc/rc.local
 ```
-Now add the following line at the bottom:
+Now add the following line before `exit 0`:
 ```
-@reboot sudo python3 /home/pi/internet-test/internet_test.py
-
+sudo python3 /home/pi/internet-test/internet_test.py &
 ```
 Save, and reboot!
 ```
 sudo reboot
 ```
+If everything works, then make the Pi read only to prevent corruption when it loses power.
