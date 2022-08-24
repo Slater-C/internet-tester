@@ -129,7 +129,7 @@ def map(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min      
 
 
-def append_file(ping_total, ping_successes, ping_failures, avg_rtt):
+def append_file(ping_total, ping_successes, ping_failures, avg_rtt):		# Appends data to a CSV. Deprecated. SD card should be read only and data should upload to a Google Sheet. This functionality will be implemented in the future.
     
     #fields = ['time', 'ping total', 'ping successes', 'ping failures', 'avg rtt', 'ok']
     fields = [time.strftime("%m/%d/%Y, %H:%M:%S", time.localtime()), str(ping_total), str(ping_successes), str(ping_failures), str(avg_rtt)+" ms"]
@@ -270,7 +270,8 @@ def main():
 
         if((save_delay + 600) < seconds):
             save_delay = time.time()
-            append_file(cycle.ping_total, cycle.ping_success, cycle.ping_failure, cycle.get_avg_rtt())
+			# File appending is now deprecated due to filesystem corruption on unexpected power loss
+            # append_file(cycle.ping_total, cycle.ping_success, cycle.ping_failure, cycle.get_avg_rtt())
             cycle.reset_cycle()
 
 
