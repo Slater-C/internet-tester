@@ -25,4 +25,25 @@ Future plans:
   - Google sheet support for long term data logging and analysis without needing SSH
   - A better way to set the WIFI password. Currently the only was is to SSH into the device over USB, or provide the password in a text file on the SD card
 
-  - Setup instructions
+
+Setup instructions (maybe incomplete?):
+ - Create directory in home called internet-test and copy internet-test.py, launcher.sh, and 5x7.ttf
+
+Now install these dependencies:
+```
+sudo pip3 install pythonping
+sudo pip3 install unicornhatmini
+sudo apt install python3-pil
+```
+If you get `ImportError: libopenjp2.so.7`, run this:
+```
+sudo apt-get install libopenjp2-7-dev
+```
+Enable SPI:
+```
+sudo raspi-config nonint do_spi 0
+```
+Setup the launcher script:
+```
+@reboot sh ~/internet-test/launcher.sh >~/internet-test/logs/cronlog 2>&1
+```
