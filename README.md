@@ -26,7 +26,7 @@ Future plans:
   - A better way to set the WIFI password. Currently the only was is to SSH into the device over USB, or provide the password in a text file on the SD card
 
 
-Setup instructions (maybe incomplete?):
+Setup instructions:
  - Create directory in home called internet-test and copy internet-test.py and 5x7.ttf
 
 Now install these dependencies:
@@ -47,7 +47,7 @@ Use rc.local to make the script load on boot:
 ```
 sudo nano /etc/rc.local
 ```
-Now add the following line before `exit 0`:
+Now add the following line before the line `exit 0`:
 ```
 sudo python3 /home/pi/internet-test/internet_test.py &
 ```
