@@ -27,7 +27,8 @@ Future plans:
 
 
 Setup instructions (maybe incomplete?):
- - Create directory in home called internet-test and copy internet-test.py, launcher.sh, and 5x7.ttf
+ - Create directory in home called internet-test and copy internet-test.py, launcher.sh, and
+ 5x7.ttf
 
 Now install these dependencies:
 ```
@@ -45,5 +46,15 @@ sudo raspi-config nonint do_spi 0
 ```
 Setup the launcher script:
 ```
-@reboot sh ~/internet-test/launcher.sh >~/internet-test/logs/cronlog 2>&1
+chmod 755 launcher.sh
+mkdir logs
+sudo crontab -e
+```
+Now add the following line at the bottom:
+```
+@reboot sh /home/internet-test/launcher.sh >/home/internet-test/logs/cronlog 2>&1
+```
+Save, and reboot!
+```
+sudo reboot
 ```
