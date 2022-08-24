@@ -202,7 +202,7 @@ def main():
 
     # Load a nice 5x7 pixel font
     # Granted it's actually 5x8 for some reason :| but that doesn't matter
-    font = ImageFont.truetype("5x7.ttf", 8)
+    font = ImageFont.truetype("/home/pi/internet-test/5x7.ttf", 8)
 
 
     cycle_delay = 0

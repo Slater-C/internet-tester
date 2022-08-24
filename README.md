@@ -44,15 +44,14 @@ Enable SPI:
 ```
 sudo raspi-config nonint do_spi 0
 ```
-Setup the launcher script:
+Use Crontab to run the script at boot automatically:
 ```
-chmod 755 launcher.sh
-mkdir logs
 sudo crontab -e
 ```
 Now add the following line at the bottom:
 ```
-@reboot sh /home/internet-test/launcher.sh >/home/internet-test/logs/cronlog 2>&1
+@reboot sudo python3 /home/pi/internet-test/internet_test.py
+
 ```
 Save, and reboot!
 ```
